@@ -25,11 +25,12 @@ for i in range(len(ROWS)):
 diag_list_2 = []
 for i in range(len(ROWS)):
     diag_list_2.append(ROWS[i] + COLS[::-1][i])
-unitlist = UNIT_LIST + [diag_list_1] + [diag_list_2]
+unitlist_diag = UNIT_LIST + [diag_list_1] + [diag_list_2]
 
 # Creating the "peers" dictionary
-units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
-peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
+units_diag = dict((s, [u for u in unitlist_diag if s in u]) for s in boxes)
+peers_diag = dict((s, set(sum(units_diag[s],[]))-set([s])) for s in boxes)
+print(peers_diag)
 
 # def assign_value(values, box, value):
 #     """
@@ -95,7 +96,7 @@ def display(values):
     return
 
 
-def eliminate(values):
+def eliminate(values, peers):
     """Eliminate values from peers of each box with a single value.
 
     Go through all the boxes, and whenever there is a box with a single value,
@@ -124,7 +125,7 @@ def eliminate(values):
     return values
 
 
-def only_choice(values):
+def only_choice(values, unitlist):
     """
     Go through all the units, and whenever there is a unit with a value that only fits in one box, assign the value to this box.
     Input: A sudoku in dictionary form.
@@ -138,7 +139,7 @@ def only_choice(values):
                 # print("Placed value ", digit, " in box ", dplaces[0])
     return values
 
-def naked_twins(values):
+def naked_twins(values, peers):
     """Eliminate values using the naked twins strategy.
     Args:
         values(dict): a dictionary of the form {'box_name': '123456789', ...}
@@ -199,7 +200,7 @@ def naked_twins(values):
                             # display(values)
     return values
 
-def reduce_puzzle(values):
+def reduce_puzzle(values, unitlist, peers):
     """
     Iterate eliminate() and only_choice(). If at some point, there is a box with no available values, return False.
     If the sudoku is solved, return the sudoku.
@@ -213,11 +214,11 @@ def reduce_puzzle(values):
         # Check how many boxes have a determined value
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
         # Use the Naked Twins Strategy
-        values = naked_twins(values)
+        values = naked_twins(values, peers)
         # Use the Eliminate Strategy
-        values = eliminate(values)
+        values = eliminate(values, peers)
         # Use the Only Choice Strategy
-        values = only_choice(values)
+        values = only_choice(values, unitlist)
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         # If no new values were added, stop the loop.
@@ -227,10 +228,10 @@ def reduce_puzzle(values):
             return False
     return values
 
-def search(values):
+def search(values, unitlist, peers):
     "Using depth-first search and propagation, try all possible values."
     # First, reduce the puzzle using the previous function
-    values = reduce_puzzle(values)
+    values = reduce_puzzle(values, unitlist, peers)
     if values is False:
         return False ## Failed earlier
     if all(len(values[s]) == 1 for s in boxes):
@@ -241,11 +242,11 @@ def search(values):
     for value in values[s]:
         new_sudoku = values.copy()
         new_sudoku[s] = value
-        attempt = search(new_sudoku)
+        attempt = search(new_sudoku, unitlist, peers)
         if attempt:
             return attempt
 
-def solve(grid):
+def solve_grid(grid):
     """
     Find the solution to a Sudoku grid.
     Args:
@@ -259,12 +260,12 @@ def solve(grid):
     display(grid_vals)
     print("Solving the puzzle: ")
     grid_vals_puzzle = grid_values(grid, blanks='123456789')
-    final_values = search(grid_vals_puzzle)
+    final_values = search(grid_vals_puzzle, unitlist_diag, peers_diag)
     return final_values
 
 if __name__ == '__main__':
     diag_sudoku_grid = '9.1....8.8.5.7..4.2.4....6...7......5..............83.3..6......9................'
-    display(solve(diag_sudoku_grid))
+    display(solve_grid(diag_sudoku_grid))
 
     try:
         from visualize import visualize_assignments
