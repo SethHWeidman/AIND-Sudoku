@@ -170,7 +170,7 @@ def naked_twins(values):
         # Peers that have the same two values:
         same_peers = [peer for peer in peers[box_with_two] if values[peer] == box_values]
 
-        # Peers that have the same two values:
+        # If we find a "naked twin":
         if len(same_peers) == 1:
 
             # Peers that have the same two values:
@@ -186,7 +186,7 @@ def naked_twins(values):
             for peer_of_both in peers_of_both:
 
                 # Only for the peers that have
-                if len(values[peer_of_both]) > 2:
+                if len(values[peer_of_both]) > 1:
 
                     # Eliminate the values from box's values
                     for value in box_values:
