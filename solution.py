@@ -185,16 +185,20 @@ def naked_twins(values):
             # For each "peer of both"
             for peer_of_both in peers_of_both:
 
-                # Only for the peers that have
+                # Only for the peers that have more than one value in them
                 if len(values[peer_of_both]) > 1:
 
-                    # Eliminate the values from box's values
+                    # For each of the "naked twins values":
                     for value in box_values:
 
-                        # If the peer_of_both
+                        # If the peer_of_both:
                         if value in values[peer_of_both]:
 
-                            values[peer_of_both] = values[peer_of_both].replace(value, '')
+                            # Eliminate it
+                            values[peer_of_both] = (
+                                values[peer_of_both]
+                                .replace(value, '')
+                                )
                             # print("Eliminated", value, "from", peer_of_both, "using Naked Twins")
                             # display(values)
     return values
